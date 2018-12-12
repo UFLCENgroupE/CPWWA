@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Community Public Works Web App</title>
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+	<% include ../partials/header.ejs %>
+	<script src="https://code.jquery.com/jquery-1.12.0.min.js"></script>
+	<script src="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js"></script>
+
+
+
+
+<script>
+
+
+	$(document).ready(function(){
+	
+		$('#add-incident').on('submit', function(e){
+			e.preventDefault();
+			
+			
+			//Formats today date for incidentDate
+			var d = new Date();;
+			x = d.getFullYear() + '/';
+			var temp = d.getMonth() + 1;
+			x += temp + '/' + d.getDate();
+			
+			
+			
+			
+			// Variables to send to mLab
+			var incidentDate = x;
+			var incidentType = $('#report_type option:selected').val();
+			var incidentAddress = $('#address').val();
+			var incidentDescription = $('#incident_des').val();
+			var incidentPictureURL = "dummyURL placeholder";
+			var managerNotes = "mgr notes";
+			var statusNotes = "Received";
+			var incidentStatus = "Submitted";
+			var incidentID = incidentType + d.getFullYear() + temp + d.getDate();
+			var incidentLat = "";
+			var incidentLong = "";
+			
+			
+		// Geocode to get the lat long for addresses entered
+		var cords	=	$.ajax({
+			    async: false,
+
+			    url: 'https://geocody.expeditedaddons.com',
+			    
+			    method: 'GET',
+			    
+			    data: {
+			          'api_key': '072ASIECZDBT53N39GR80P1X962O4H68MKWJQ714LFUVY5',
+			          'address': incidentAddress,
+			          'country_code': 'US',
+			          'language_code': 'en'
+			    },
+			    
+			    dataType: 'json',
+			    
+			    statusCode: {
+			        200: function(response){
+			        	console.log(response);
+			        	console.log(response.locations[0].latitude + ',' + response.locations[0].longitude);
+			        	incidentLat = response.locations[0].latitude;
+			        	incidentLong = response.locations[0].longitude;
+
+		        }
+  		    }
+
+		});
+		
+		
+		
+		// Function to POST all data into mLab
+		$.ajax({
+		
+			url: "https://api.mongolab.com/api/1/databases/cpwwa/collections/reports?apiKey=nscHiOH4ZEw8qUrXVBLr9NR521_wVT2Q",
+			data: JSON.stringify({ 
+			
+					"incidentDate": incidentDate,
+					"incidentType": incidentType,
+					"incidentAddress": incidentAddress,
+					"incidentDescription": incidentDescription,
+					"incidentPictureURL": incidentPictureURL,
+					"managerNotes": managerNotes,
+					"statusNotes": statusNotes,
+					"incidentStatus": incidentStatus,
+					"incidentID": incidentID,
+					"incidentLat": incidentLat,
+					"incidentLong": incidentLong	
+					
+			}),
+			type: "POST",
+			contentType: "application/json",
+			success: function(data){
+				alert("Report Submitted.");
+			},
+			error: function(xhr, status, err){
+			console.log(err);
+			}
+			});
+		
+		});
+	
+	});
+	
+</script>
+
+
+
+</head>
+<body>
+<% include ../partials/nav.ejs %> 
+	
+		
+	<div class="jumbotron text-center">
+		<div class="container">
+			<a href="/" class="lang-logo">
+				<img src="/lang-logo.png">
+			</a>
+		<h1>First page for CPWWA</h1>
+			<p>This the demo page for submitting reports to MongoDB.</p>
+			<p>Enter the information for the report and click the button. </p>
+		
+			<form id = "add-incident">
+		
+		<div class="form-group">
+		<label for="report_type">Report Type</label>
+			<select class="form-control" id="report_type">
+				<option value="A">Animal</option>
+				<option value="E">Electrical </option>
+				<option value="F">Fire </option>
+				<option value="R">Road </option>
+				<option value="V">Vandalism</option>
+				<option value="W">Water/Flood </option>	
+			</select>
+		</div>
+		
+		<div class="form-group">
+			<label for="address">Address or Closest Location</label>
+			<input type="text" id="address" class="form-control">
+		</div>
+		
+		<div class="form-group">
+			<label for="incident_des">Incident Description</label>
+			<input type="text" id="incident_des" class="form-control">
+		</div>
+		
+		<input type="submit" name="submit" value="Add Incident" class="btn btn-primary">
+		
+		</form>
+		
+		
+		
+		
+		
+		
+		
+		</div>
+	</div>
+
+
+</body>
+</html>

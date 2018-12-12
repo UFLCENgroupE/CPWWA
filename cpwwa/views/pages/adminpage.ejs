@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  	<% include ../partials/header.ejs %>
+	<meta name="viewport" content="initial-scale=1.0, user-scalable=no">
+    <meta charset="utf-8">
+    </style>
+  	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  </head>
+  
+  <style>
+html, body, #map {
+    width: 100%;
+    height: 1000px;
+    margin: 0;
+    padding: 0;
+}
+#map_canvas {
+    position: relative;
+}
+</style>
+  
+  
+  <body>
+  	<% include ../partials/nav.ejs %>
+  	
+  	
+  	<div class="jumbotron text-center">
+  		<div class="container">
+    	<a href="/" class="lang-logo">
+    	  <img src="/lang-logo.png">
+    	</a>
+  		
+  	
+		<!-- Detail panel on the right side -->
+		<div class="col-md+8" id="details">
+		Details here
+		</div>
+		<button id="refresh_btn">Refresh</button>
+
+
+			<div class="table-responsive">
+
+				<table class="table table-bordered table-striped" id="reportDetails" ></table>
+								
+			
+		</div>
+		<div class="col-md+8">
+		View more Details on a Specific Case Copy the ID number to Enter
+		</div>
+		<button id="more_btn">Details</button>
+		</div>
+  		
+  		<br/>
+  		<!-- Press this button to retrieve a record to update -->
+  		<br/>
+		<button id="editRecord">1. Select Record</button><button id="recordEdit">2. Update</button>
+		
+			<!-- Form to prepopulate and add data -->
+			<form>
+			<div class="form-group" vertical-align="middle">
+				<label>ID (Read Only)</label> <input id="mongoDBID" type="text" readonly> <br/>
+				</div>
+				<div class="form-group">
+				<label>Date</label>  <input id="incidentDate" type="text" readonly> <br/>
+				</div>
+				<div class="form-group">
+				<label>Type</label>  <input id="incidentType" type="text"> <br/>
+				</div>
+				<div class="form-group">
+				<label>Address</label>  <input id="incidentAddress" type="text"> <br/>
+				</div>
+				<div class="form-group">
+				<label>Latitude</label>  <input id="incidentLat" type="text"> <br/>
+				</div>
+				<div class="form-group">
+				<label>Longitude</label> <input id="incidentLong" type="text"> <br/>
+				</div>
+				<div class="form-group">
+				<label>Description</label>  <input id="incidentDescription" type="text"> <br/>
+				</div>
+				<div class="form-group">
+				<label>Status</label>  <input id="incidentStatus" type="text"> <br/>
+				</div>
+				<div class="form-group">
+				<label>Manager Notes</label>  <input id="managerNotes" type="text"> <br/>
+				</div>
+				<div class="form-group">
+				<label>Status Notes</label>  <input id="statusNotes" type="text">
+				<v/di>
+			</form>
+		
+			<!-- Once someone is done editing, it can be updated to the MLab with this-->
+			
+			
+		  	<br/>	
+  	
+		<input type="text" id="id-to-delete" value="Enter the ID of the case to delete." size="35">
+		<button id="delete_btn">Delete</button>
+		</div>
+  		
+  		
+  	
+  	<!-- Click this to get the incidents populated (will remove this later so it loads it automatically) -->
+
+	<div class="row">
+
+
+		<!-- Where the map of location incident populates -->
+		<div id="map">Google Maps here</div>
+		
+
+
+	</div>	
+  	
+
+  	
+  		<!-- Makes a call to MLab and gets the coordinates of reported incident locations and stores it in reportedIncidents array -->
+	<script>
+	var allIncidents;
+	var reportedIncidents = [];
+
+		 $( document ).ready(function () {
+  			$(document.getElementById("refresh_btn")).bind('click', function () {
+  				$.ajax({
+  					async: false,
+  					type: "GET",
+  					url: "https://api.mongolab.com/api/1/databases/cpwwa/collections/reports?apiKey=nscHiOH4ZEw8qUrXVBLr9NR521_wVT2Q",
+  					dataType: "json",
+  					
+  					success: 
+  						
+  						function(response){
+  						
+  							allIncidents = response; // This is for the returned JSON from the get command
+
+  							var pinLocations = response;
+  							console.log(pinLocations);
+  							console.log(pinLocations[0]._id.$oid);
+
+  							for(var key in pinLocations) {
+  								
+  									// This constructor prototype is needed so that the Google Maps can read it correctly
+  									function geolocation(lat, lng){
+  										this.lat = lat;
+  										this.lng = lng;
+  									}
+  									
+  									var oneLocation = new geolocation( pinLocations[key].incidentLat, pinLocations[key].incidentLong);
+
+									reportedIncidents.push(oneLocation);
+
+
+  								//Example of how to get specific ID of incident, console.log(pinLocations[key]._id.$oid);
+  							}
+  						}
+  				});
+
+  				$(function () {
+  					initMap();
+  					showDetails();
+
+  					//Once we have initialized the map with markers and also shown the details, we can clear the info
+  					allIncidents = null;
+  					reportedIncidents = [];
+
+  				});
+		    });
+		});
+	</script>
+
+	<script>
+		 $( document ).ready(function () {
+  			$(document.getElementById("more_btn")).bind('click', function () {
+			
+				var caseid = prompt("Please enter the ID to see more Details: ");
+				var casedetails;
+  				$.ajax({
+  					async: false,
+  					type: "GET",
+  				
+  					url: process.env.MONGO_URL_KEY,
+  					dataType: "json",
+  					
+  					success: 
+  						
+  						function(response){
+  						
+  							casedetails = response; // This is for the returned JSON from the get command
+
+				
+							
+						}
+				});
+				
+				
+				var i = 0;
+				while (casedetails[i]._id.$oid != caseid) {
+						i++;
+				}
+				
+				alert(	"ID: " 						+ casedetails[i]._id.$oid + "\n" +
+						"Date: "					+ casedetails[i].incidentDate + "\n" +
+						"Type: "					+ casedetails[i].incidentType + "\n" +
+						"Address: " 				+ casedetails[i].incidentAddress + "\n" +
+						"Latitude and Longitude: " 	+ casedetails[i].incidentLat + ", " + casedetails[i].incidentLong + "\n" +
+						"Description: " 			+ casedetails[i].incidentDescription + "\n"+
+						"Status: " 					+ casedetails[i].incidentStatus + "\n" +
+						"Manager Notes: " 			+ casedetails[i].managerNotes + "\n"+
+						"Status Notes: " 			+ casedetails[i].statusNotes );
+				
+				casedetails = null;
+  			});
+		});
+				
+	</script>  
+		  
+		  
+		  
+	<!-- Script to populate the map -->
+    <script src="https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/markerclusterer.js"></script>
+	<script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAlBHSHMiYe9iSsDGDR1N9bF5EqNB1xbj4&callback=initMap"></script>
+
+	<script>
+		
+		      function initMap() {
+
+		        var locations = reportedIncidents;
+		        console.log(locations);
+
+		
+		        var map = new google.maps.Map(document.getElementById('map'), {
+		          zoom: 15,
+		          center: {lat: 29.650314, lng: -82.329944}
+		        });
+		
+		        // Create an array of alphabetical characters used to label the markers.
+		        var labels = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+		
+		        // Add some markers to the map.
+		        // Note: The code uses the JavaScript Array.prototype.map() method to
+		        // create an array of markers based on a given "locations" array.
+		        // The map() method here has nothing to do with the Google Maps API.
+		        var markers = locations.map(function(location, i) {
+		        	
+		        	//Test alert('Marker added');
+		          
+		          	return new google.maps.Marker({
+		            position: location,
+		            label: labels[i % labels.length]
+		          });
+		        });
+		
+		        // Add a marker clusterer to manage the markers.
+		        var markerCluster = new MarkerClusterer(map, markers,
+		            {imagePath: 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m'});
+		      }
+		      
+		      
+	</script>
+	
+	
+	
+	<script>
+
+
+			function showDetails() {
+				$('table').empty();
+				
+				var tr;
+				
+				tr = $('<tr/>');
+				tr.append("<td>" + 'ID' + "</td>");
+				tr.append("<td>" + 'Date' + "</td>");
+				tr.append("<td>" + 'Type' + "</td>");
+				tr.append("<td>" + 'Address' + "</td>");
+				$('table').append(tr);
+				
+        		for (var i = 0; i < allIncidents.length; i++) {
+            		tr = $('<tr/>');
+					tr.append("<td>" + allIncidents[i]._id.$oid + "</td>");
+            		tr.append("<td>" + allIncidents[i].incidentDate + "</td>");
+            		tr.append("<td>" + allIncidents[i].incidentType + "</td>");
+            		tr.append("<td>" + allIncidents[i].incidentAddress + "</td>");
+            		$('table').append(tr);
+        		}
+
+
+			}
+			
+
+
+	</script>
+	
+	
+	
+	<script>
+		 $( document ).ready(function () {
+  			$(document.getElementById("delete_btn")).bind('click', function () {
+			
+				var del = document.getElementById("id-to-delete").value;
+  				$.ajax( { 
+					url: "https://api.mlab.com/api/1/databases/cpwwa/collections/reports/" + del + "?apiKey=nscHiOH4ZEw8qUrXVBLr9NR521_wVT2Q",
+					type: "DELETE",
+					 async: true,
+					 timeout: 300000,
+					 success: function (data) {
+							alert('Case has been Deleted.');
+						},
+					 error: function (xhr, status, err) { } } );
+		
+  			});
+		});
+				
+	</script>
+	
+	
+	
+	<script>
+
+$( document ).ready( function() {
+	
+
+	$(document.getElementById("editRecord")).bind('click', function() {
+
+
+		//Get the case id from user and stores it
+		var editRecordID = prompt("Enter the MongoDB record you want to update:");
+		var searchForThis = 
+
+		"{" + '\"' + "_id" + '\"' + ":{"  + '\"' + "$oid"  + '\"' + ":"  + '\"'  + editRecordID          + '\"' + "}}";
+
+		//{       "    _id      "      :{       "     $oid       "     :       "   5c0fcc3e5d0e6554dd6f0bfe   "}}
+
+
+
+
+		//Test to see what we're searching for
+		console.log(searchForThis);
+
+
+		//Gets the specific record from MLab that matches with the id
+		
+		var record = null;
+		
+
+		$.ajax({
+			    async: false,
+
+			    url: 'https://api.mongolab.com/api/1/databases/cpwwa/collections/reports',
+			    
+			    method: 'GET',
+			    
+			    data: {
+			          'apiKey': 'nscHiOH4ZEw8qUrXVBLr9NR521_wVT2Q',
+			          'q': searchForThis
+			    },
+			    
+			    dataType: 'json',
+			    
+			    statusCode: {
+			        200: function(response){
+			        	record = response;
+			        	console.log(record);
+		        }
+  		    }
+  		});
+
+
+			document.getElementById("mongoDBID").value = record[0]._id.$oid;
+			document.getElementById("incidentDate").value = record[0].incidentDate;
+			document.getElementById("incidentType").value = record[0].incidentType;
+			document.getElementById("incidentAddress").value = record[0].incidentAddress;
+			document.getElementById("incidentLat").value = record[0].incidentLat;
+			document.getElementById("incidentLong").value = record[0].incidentLong;
+			document.getElementById("incidentDescription").value = record[0].incidentDescription;
+			document.getElementById("incidentStatus").value = record[0].incidentStatus;
+			document.getElementById("managerNotes").value = record[0].managerNotes;
+			document.getElementById("statusNotes").value = record[0].statusNotes;
+
+  	});
+});
+
+
+</script>
+
+
+
+<script>
+
+$(document).ready(function(){
+
+	$(document.getElementById("recordEdit")).bind('click', function () {
+
+
+
+
+		// Variables to send to mLab
+		var mongoDBID = document.getElementById("mongoDBID").value;
+		var incidentType = document.getElementById("incidentType").value;
+		var incidentAddress = document.getElementById("incidentAddress").value;
+		var incidentDescription = document.getElementById("incidentDescription").value;
+		var incidentPictureURL = "dummyURL placeholder";
+		var managerNotes = document.getElementById("managerNotes").value;
+		var statusNotes = document.getElementById("statusNotes").value;
+		var incidentStatus = document.getElementById("incidentStatus").value;
+		var incidentLat = document.getElementById("incidentLat").value;
+		var incidentLong = document.getElementById("incidentLong").value;
+
+
+		// Geocode to get the lat long for addresses entered
+		var cords	=	$.ajax({
+		  url: "https://api.mlab.com/api/1/databases/cpwwa/collections/reports/" + mongoDBID + "?apiKey=nscHiOH4ZEw8qUrXVBLr9NR521_wVT2Q",
+		type: "PUT",
+		data: JSON.stringify( {
+						"incidentType": incidentType,
+						"incidentAddress": incidentAddress,
+						"incidentDescription": incidentDescription,
+						"incidentPictureURL": incidentPictureURL,
+						"managerNotes": managerNotes,
+						"statusNotes": statusNotes,
+						"incidentStatus": incidentStatus,
+						"incidentLat": incidentLat,
+						"incidentLong": incidentLong	
+		}),
+		contentType: "application/json",
+		success: function (data) {
+		alert('Case has been Updated.');
+		},
+		error: function (xhr, status, err) { } } );
+
+	});
+
+});
+
+
+</script>
+
+	
+		  
+</body>
+  
+</html>
