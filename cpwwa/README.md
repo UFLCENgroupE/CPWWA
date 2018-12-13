@@ -3,13 +3,17 @@
 Group E was awarded a bid to complete a community web app which allows community managers to manage
 reported public works incidents and also allow community members to report public work incidents. 
 
+
 ## Getting Started
 
 These instructions will get you a copy of the project up and running on your local machine for development and testing purposes.
 See deployment for notes on how to deploy the project on a live system.
 
-### Prerequisites
+### Deployed Page
+https://cpwwa.herokuapp.com/
 
+
+### Prerequisites
 (1) GitHub for cloning repo, (2) Heroku cli for deployment
 
 
@@ -17,6 +21,14 @@ See deployment for notes on how to deploy the project on a live system.
 ```
 git clone https://github.com/UFLCENgroupE/CPWWA.git
 ```
+
+### Running project locally
+
+Option # 1) Since the app is deployed in heroku, you can also start all the process associated with your profile and then run the app locally
+See https://devcenter.heroku.com/articles/config-vars#managing-config-vars for more information
+
+Option # 2) If you want to run the project locally, then use npm install express and EJS
+See https://scotch.io/tutorials/use-ejs-to-template-your-node-application for more information
 
 ### Deploy in Heroku
 ```
@@ -107,6 +119,32 @@ Here's an example record from mLab
     ...
 ]
 ```
+
+### Updating database and server connections
+To update the database connections, go to all instances of where the API keys are present in the AJAX calls
+These were hardcoded (see example below)
+
+Here you see a ajax call to geocody (URL)
+With the api_key 00000000000000000
+So you can think of the database to look where up where the incident coordinates would be is at the geocody endpoint
+And the API keys are hardcoded in this ajax GET call
+
+```
+var cords	=	$.ajax({
+			    async: false,
+			    url: 'https://geocody.expeditedaddons.com',
+			    
+			    method: 'GET',
+			    
+			    data: {
+			          'api_key': '00000000000000000',
+			          'address': incidentAddress,
+			          'country_code': 'US',
+```
+
+In a future version, making a config/keys.js is highly recommended to store all the API keys and database conections
+
+
 
 ## Built With
 
