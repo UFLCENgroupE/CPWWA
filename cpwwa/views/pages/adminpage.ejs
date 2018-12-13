@@ -169,6 +169,7 @@ html, body, #map {
 		});
 	</script>
 
+  	<!-- This script allows the user to see more details of a certain case by submitting it's unique ID after clicking the button --> 
 	<script>
 		 $( document ).ready(function () {
   			$(document.getElementById("more_btn")).bind('click', function () {
@@ -179,7 +180,7 @@ html, body, #map {
   					async: false,
   					type: "GET",
   				
-  					url: process.env.MONGO_URL_KEY,
+					url: "https://api.mongolab.com/api/1/databases/cpwwa/collections/reports?apiKey=nscHiOH4ZEw8qUrXVBLr9NR521_wVT2Q", 
   					dataType: "json",
   					
   					success: 
@@ -200,12 +201,12 @@ html, body, #map {
 				}
 				
 				alert(	"ID: " 						+ casedetails[i]._id.$oid + "\n" +
-						"Date: "					+ casedetails[i].incidentDate + "\n" +
-						"Type: "					+ casedetails[i].incidentType + "\n" +
+						"Date: "				+ casedetails[i].incidentDate + "\n" +
+						"Type: "				+ casedetails[i].incidentType + "\n" +
 						"Address: " 				+ casedetails[i].incidentAddress + "\n" +
-						"Latitude and Longitude: " 	+ casedetails[i].incidentLat + ", " + casedetails[i].incidentLong + "\n" +
+						"Latitude and Longitude: " 		+ casedetails[i].incidentLat + ", " + casedetails[i].incidentLong + "\n" +
 						"Description: " 			+ casedetails[i].incidentDescription + "\n"+
-						"Status: " 					+ casedetails[i].incidentStatus + "\n" +
+						"Status: " 				+ casedetails[i].incidentStatus + "\n" +
 						"Manager Notes: " 			+ casedetails[i].managerNotes + "\n"+
 						"Status Notes: " 			+ casedetails[i].statusNotes );
 				
@@ -260,11 +261,9 @@ html, body, #map {
 	</script>
 	
 	
-	
+	<!-- This script fills a table with all the incidents and shows the list to the user after the "Refresh" button is clicked -->
 	<script>
-
-
-			function showDetails() {
+		function showDetails() {
 				$('table').empty();
 				
 				var tr;
@@ -293,7 +292,8 @@ html, body, #map {
 	</script>
 	
 	
-	
+	<!-- By clicking the "Delete" button a user is prompted to input an ID of a case which is then deleted from the database -->
+	<!-- TODO have another prompt to ask the user if they are certain they want to delete the incident -->
 	<script>
 		 $( document ).ready(function () {
   			$(document.getElementById("delete_btn")).bind('click', function () {
@@ -315,12 +315,10 @@ html, body, #map {
 	</script>
 	
 	
-	
+	<!-- This script allows the user to make changes to a certain incident by submitting an incidentID-->
 	<script>
 
-$( document ).ready( function() {
-	
-
+	$( document ).ready( function() {
 	$(document.getElementById("editRecord")).bind('click', function() {
 
 
@@ -385,7 +383,7 @@ $( document ).ready( function() {
 </script>
 
 
-
+<!-- This is the script that follows the Editting of an incident and does the PUT call to MONGODB -->
 <script>
 
 $(document).ready(function(){
