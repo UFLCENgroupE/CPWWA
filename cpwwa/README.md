@@ -40,6 +40,10 @@ git push heroku master
 https://devcenter.heroku.com/articles/getting-started-with-nodejs#deploy-the-app
 ```
 
+## App Features
+
+See https://github.com/UFLCENgroupE/CPWWA/blob/master/cpwwa/implementations.png
+
 
 ## Testing
 
