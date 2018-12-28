@@ -3,7 +3,7 @@
 	
 	
 	testgeocody(addr){
-		var apiWithKey = 'https://geocody.expeditedaddons.com/?api_key=072ASIECZDBT53N39GR80P1X962O4H68MKWJQ714LFUVY5&address=';
+		var apiWithKey = 'https://geocody.expeditedaddons.com/?api_key=&address=';
 		var address = addr;
 		var countryLang = '&country_code=US&language_code=en';
 		
