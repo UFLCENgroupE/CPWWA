@@ -125,7 +125,7 @@ html, body, #map {
   				$.ajax({
   					async: false,
   					type: "GET",
-  					url: "https://api.mongolab.com/api/1/databases/cpwwa/collections/reports?apiKey=nscHiOH4ZEw8qUrXVBLr9NR521_wVT2Q",
+  					url: "https://api.mongolab.com/api/1/databases/cpwwa/collections/reports?apiKey=",
   					dataType: "json",
   					
   					success: 
@@ -180,7 +180,7 @@ html, body, #map {
   					async: false,
   					type: "GET",
   				
-					url: "https://api.mongolab.com/api/1/databases/cpwwa/collections/reports?apiKey=nscHiOH4ZEw8qUrXVBLr9NR521_wVT2Q", 
+					url: "https://api.mongolab.com/api/1/databases/cpwwa/collections/reports?apiKey", 
   					dataType: "json",
   					
   					success: 
@@ -220,7 +220,7 @@ html, body, #map {
 		  
 	<!-- Script to populate the map -->
     <script src="https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/markerclusterer.js"></script>
-	<script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAlBHSHMiYe9iSsDGDR1N9bF5EqNB1xbj4&callback=initMap"></script>
+	<script async defer src="https://maps.googleapis.com/maps/api/js?key=&callback=initMap"></script>
 
 	<script>
 		
@@ -300,7 +300,7 @@ html, body, #map {
 			
 				var del = document.getElementById("id-to-delete").value;
   				$.ajax( { 
-					url: "https://api.mlab.com/api/1/databases/cpwwa/collections/reports/" + del + "?apiKey=nscHiOH4ZEw8qUrXVBLr9NR521_wVT2Q",
+					url: "https://api.mlab.com/api/1/databases/cpwwa/collections/reports/" + del + "?apiKey="
 					type: "DELETE",
 					 async: true,
 					 timeout: 300000,
@@ -350,7 +350,7 @@ html, body, #map {
 			    method: 'GET',
 			    
 			    data: {
-			          'apiKey': 'nscHiOH4ZEw8qUrXVBLr9NR521_wVT2Q',
+			          'apiKey': '',
 			          'q': searchForThis
 			    },
 			    
@@ -408,7 +408,7 @@ $(document).ready(function(){
 
 		// Geocode to get the lat long for addresses entered
 		var cords	=	$.ajax({
-		  url: "https://api.mlab.com/api/1/databases/cpwwa/collections/reports/" + mongoDBID + "?apiKey=nscHiOH4ZEw8qUrXVBLr9NR521_wVT2Q",
+		  url: "https://api.mlab.com/api/1/databases/cpwwa/collections/reports/" + mongoDBID + "?apiKey=",
 		type: "PUT",
 		data: JSON.stringify( {
 						"incidentType": incidentType,
